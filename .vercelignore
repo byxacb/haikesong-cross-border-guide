@@ -1,0 +1,10 @@
+.env*
+.next/
+node_modules/
+.npm-cache/
+.playwright-cli/
+.qoder/repowiki/
+outputs/
+*.pptx
+*.key
+*.pem
