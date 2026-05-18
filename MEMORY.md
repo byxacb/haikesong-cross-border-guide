@@ -5,7 +5,16 @@
 ## 当前状态
 
 - 工作区：`/Users/bianyawen/Desktop/黑客松`
-- 当前目录不是 Git 仓库；`git log --oneline -3` 返回 `fatal: not a git repository`。
+- 当前目录已初始化为 Git 仓库，远程仓库为 `https://github.com/byxacb/haikesong-cross-border-guide`；最新部署提交包含 `fb6c9ac` 和 `cff517d`。
+- 2026-05-18 最新交付：已完成 Vercel 快速演示部署，生产地址为 `https://haikesong-cross-border-guide.vercel.app/workspace`，GitHub 仓库为 `https://github.com/byxacb/haikesong-cross-border-guide`。
+- 本轮部署说明：按用户选择走 Vercel/GitHub 快速演示路线，不新增文生图功能；Vercel 中国大陆访问稳定性不能按正式生产承诺，若大陆网络访问不稳，下一步应改走腾讯云/阿里云大陆区域 + ICP 备案。
+- 本轮部署实现：创建 Git 仓库并提交源码；创建 GitHub 仓库；创建并链接 Vercel 项目 `humdeci/haikesong-cross-border-guide`；关闭 Vercel SSO 部署保护；将 `DEEPSEEK_API_KEY`、`BRAVE_API_KEY`、`BRAVE_SEARCH_API_KEY` 写入 Vercel Production 环境变量；通过 `vercel build --prod` + `vercel deploy --prebuilt --prod` 部署 2.6MB 预构建产物，避免上传本地 `node_modules/.next/.npm-cache` 等大目录。
+- 本轮验证：`npm run lint` 通过；`npm run build` 通过；Vercel 生产部署 `dpl_9F98xLzR8aKTWfMaRR4Pg6EBrDnH` 状态 `READY`；`curl -I https://haikesong-cross-border-guide.vercel.app/workspace` 返回 HTTP 200；页面 HTML 包含 `跨境开店注册助手` 和 `开始注册引导`，不含 `DeepSeek/Tavily/Brave/搜索 API Key/自适应主控/动态问诊`。
+- 本轮功能验证：`POST /api/ai/workflow-step` 返回 HTTP 200 + `success:true`；Playwright 打开生产 `/workspace` 并点击 `开始注册引导` 后进入“你想注册的经营主体类型是？”首问，控制台 0 error / 0 warning；`POST /api/ai/workflow-final-plan` 上海跨境电商公司场景返回 HTTP 200 + `success:true`，包含 11 步路线图、11 组材料和 10 个官方入口卡，响应中无搜索 Key 或 Brave/Tavily 暴露。
+- 2026-05-18 最新交付：已制作 5 页中文 16:9 项目介绍 PPT，适配约 2 分钟讲解，最终文件为 `跨境开店注册助手-两分钟介绍.pptx`；PPT 使用当前 `/workspace` 真实截图作为 Demo 证据。
+- 本轮 PPT 制作使用 Presentations skill 和 artifact-tool；临时工作区为 `outputs/manual-20260518-ppt/presentations/项目介绍PPT`，最终 PPT 已复制到项目根目录。
+- 本轮验证：`curl -I http://127.0.0.1:3000/workspace` 返回 HTTP 200；`playwright screenshot` 重新截取当前网页并嵌入 PPT；artifact-tool 导出 5 页 PPTX 成功；PPTX 包内 5 张 slide、1 个媒体文件、无空媒体；布局检查 0 error，1 个可接受 warning（第 3 页护栏 band 中标题和正文手动分列）。
+- 本轮验证限制：`npm run build` 被已有 Next build 锁阻塞，返回 `Another next build process is already running`，本轮未强行清锁；当前目录仍不是 Git 仓库。
 - 2026-05-18 最新状态：`/workspace` 已完成产品级 UI 重构，从普通政务/技术工作台改为“出海注册航线”主题界面；页面使用“下一道关卡、材料舱单、官方靠港入口、已确认航迹”等产品语言，不再采用政务蓝等通用后台视觉。
 - 本轮已安装并读取 `vercel-labs/agent-skills@web-design-guidelines` 作为 UI 设计检查依据；未引入新组件库、不接 Figma、不修改 DeepSeek API、`UserSession` 或路线图数据结构。
 - `/workspace` 主视觉从手账纸纹和红色边距线改为浅绿灰航线网格背景；配色使用墨绿、航标黄、珊瑚红、纸白和深墨色，避免蓝紫渐变和常见政务 SaaS 风格。
@@ -37,6 +46,10 @@
   - `.qoder/rules/hackathon.md`
 
 ## 用户原始需求摘录
+
+2026-05-18 用户最新需求：用户要求实施“Vercel 快速演示部署计划”，把网站部署到 Vercel + GitHub，配置已有 API Key，让公开地址可访问并验证 `/workspace` 主流程；用户随后要求“继续部署”。
+
+2026-05-18 用户最新需求：用户要求执行“两分钟项目介绍 PPT 制作计划”，生成 5 页中文 16:9 可编辑 PowerPoint，主题聚焦“跨境开店注册助手”，必须重新截取当前网页放入 PPT，最终交付到 `/Users/bianyawen/Desktop/黑客松/跨境开店注册助手-两分钟介绍.pptx`。
 
 2026-05-18 用户最新需求：用户要求按已确认计划重构 `/workspace` 产品级 UI，但在实施中明确纠偏：不要用“政务蓝”等视觉最大公约数设计，要结合功能主题元素重新构思，追求新颖创新，不追求稳。
 
@@ -320,6 +333,16 @@
 - 验证证据：`npx tsc --noEmit` 通过；`npm run lint` 通过；`npm run build` 通过，仅有既有 Node `module.register()` 弃用警告和 Next 静态生成期 localStorage 实验警告。
 - 浏览器验证证据：in-app browser 刷新 `http://localhost:3000/workspace` 后，页面存在 8 个 `.interactive-surface`、5 个 `.magnet-wrap`；点击“开始注册引导”进入主体类型首问；官方入口 `href` 与 `data-official-url` 仍为真实市场监管总局规范链接；页面正文禁词检查无 `DeepSeek`、`Tavily`、`Brave`、`Claude`、`Anthropic`、`自适应主控`、`动态问诊`；控制台无 error/warning。
 - 遗留说明：本轮没有处理业务准确性问题，也没有为了测试最终方案而等待 DeepSeek 生成完整路线图，因此 `RevealOnView` 的路线图显现效果主要由代码和构建验证覆盖，完整路线图视觉可在最终方案生成后继续验收。
+
+## 2026-05-18 两分钟项目介绍 PPT 制作记录
+
+- 用户原始需求：用户要求按已确认计划制作一个介绍本项目的 PPT，控制页数，适合约 2 分钟讲解；PPT 必须包含当前网页截图，直观展示产品现在长什么样；如果没有 PPT 制作能力则配置相关 skill。
+- 本轮实现：使用 Presentations skill 制作 5 页中文 16:9 可编辑 PowerPoint，主题为“跨境开店注册助手”；页面结构为项目一句话、痛点与用户、产品闭环、当前网页 Demo、技术与价值。
+- 本轮实现：通过 `playwright screenshot --viewport-size 1440,900` 从 `http://127.0.0.1:3000/workspace` 重新截取当前网页，保存到 `outputs/manual-20260518-ppt/presentations/项目介绍PPT/assets/workspace-current.png` 并嵌入第 4 页。
+- 本轮实现：最终 PPTX 已导出并复制为 `跨境开店注册助手-两分钟介绍.pptx`；未使用 Amazon 或其他平台官方 logo，不伪造品牌资产。
+- 验证证据：`curl -I http://127.0.0.1:3000/workspace` 返回 HTTP 200；artifact-tool 构建输出 5 页 PPTX，文件大小约 166856 bytes；包检查显示 `slides:5`、`media:1`、`emptyMedia:[]`。
+- 验证证据：contact sheet 已人工检查，5 页缩略图可读且节奏不同；布局质量检查为 0 error，1 warning，warning 为第 3 页“本地护栏”band 中标题和正文手动分列，视觉上可接受。
+- 验证限制：`npm run build` 本轮被已有 Next build 锁阻塞，返回 `Another next build process is already running`，未清锁或中断其他构建；当前目录仍不是 Git 仓库。
 
 ## 2026-05-18 `/workspace` 启动记录
 
